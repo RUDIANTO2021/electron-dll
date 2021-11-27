@@ -18,6 +18,9 @@
   },
   "homepage": "https://github.com/dengjinzhong/electron-dll#readme",
   "devDependencies": {
-    "electron": "^16.0.2"
+    "electron": "^13.0.0"
+  },
+  "dependencies": {
+    "electron-edge-js": "^14.16.1"
   }
 }
