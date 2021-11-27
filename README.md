@@ -1,3 +1,5 @@
+# electron 踩坑之旅(一)  —— 项目初体验
+
 由于公司 `.net` 同事离职, 于是前端开发的我开启了 `electron` 的踩坑之旅
 
 ## 1. 项目初始化
@@ -118,3 +120,51 @@ npm run dev
 
 ![image.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b8c8d23a487b42caa389fc51c71f2ae5~tplv-k3u1fbpfcp-watermark.image?)
 
+#### 通过预加载脚本从渲染器访问Node.js
+现在，最后要做的是输出Electron的版本号和它的依赖项到你的web页面上。
+
+在主进程通过Node的全局 `process` 对象访问这个信息是微不足道的。 然而，你不能直接在主进程中编辑DOM，因为它无法访问渲染器 `文档` 上下文。 它们存在于完全不同的进程！
+
+这是将 **预加载** 脚本连接到渲染器时派上用场的地方。 预加载脚本在渲染器进程加载之前加载，并有权访问两个 渲染器全局 (例如 `window` 和 `document`) 和 Node.js 环境。
+
+创建一个名为 `preload.js` 的新脚本如下：
+
+```
+window.addEventListener('DOMContentLoaded', () => {
+  const replaceText = (selector, text) => {
+    const element = document.getElementById(selector)
+    if (element) element.innerText = text
+  }
+
+  for (const dependency of ['chrome', 'node', 'electron']) {
+    replaceText(`${dependency}-version`, process.versions[dependency])
+  }
+})
+```
+
+上面的代码访问 Node.js `process.versions` 对象，并运行一个基本的 `replaceText` 辅助函数将版本号插入到 HTML 文档中。
+
+要将此脚本附加到渲染器流程，请在你现有的 `BrowserWindow` 构造器中将路径中的预加载脚本传入 `webPreferences.preload` 选项。
+
+```
+// 在文件头部引入 Node.js 中的 path 模块
+const path = require('path')
+
+// 修改现有的 createWindow() 函数
+function createWindow () {
+  const win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    }
+  })
+
+  win.loadFile('index.html')
+}
+// ...
+```
+
+运行程序
+
+![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/33a31820c28b4081bc809da0a8e0a49b~tplv-k3u1fbpfcp-watermark.image?)
