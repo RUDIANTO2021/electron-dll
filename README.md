@@ -168,3 +168,119 @@ function createWindow () {
 运行程序
 
 ![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/33a31820c28b4081bc809da0a8e0a49b~tplv-k3u1fbpfcp-watermark.image?)
+
+# electron 踩坑之旅(二) —— 调用 .Net 的 DLL
+
+`.net` 同事虽然离职了, 但是他的传说依然流传, 之前他封装好的许多方法还是可以直接拿来用的, 那么如何调用 .Net 方法就成为了关键
+
+## 调用 `.Net Dll`
+
+Nodejs 中调用 C# dll 可以使用 `edge.js`
+
+`Electron` 是使用Node.js的特定版本构建的, 为了在 `Electron` 项目中使用 `edge.js` , 我们需要使用相同的 `Node.js` 版本 和 `Electron` 头文件 重新编译它
+
+#### 安装 electron-edge-js
+
+`electronic-edge-js` 带有正确的Node.js版本和头文件。
+
+```
+npm install electron-edge-js --save
+```
+
+#### 使用
+
+`html` 中添加一个按钮
+```html
+<button id="btn">按钮</button>
+```
+`preload.js` 中监听按钮点击事件
+
+```javascript
+var edge = require('electron-edge-js');
+window.onload = function () {
+  const btn = document.getElementById('btn')
+  btn.onclick = function () {
+    var helloWorld = edge.func(function () {/*
+    async (input) => {
+        return ".NET Welcomes " + input.ToString();
+    }
+*/});
+    helloWorld('Electron', (error, value) => {
+      console.log(error, value)
+    })
+  }
+}
+```
+
+#### 报错
+
+重新运行程序会发现报错了
+
+```shell
+The edge module has not been pre-compiled for Electron version 16.0.2  . You must build a custom version of edge.node. Please refer to https://github.com/agracio/edge-js for building instructions.
+```
+
+这是因为 `electron-edge-js` 还未提供 `Electron version 16.0.2`  对应版本
+
+[查阅官网](https://www.npmjs.com/package/electron-edge-js)可以看到对应版本信息
+
+-   Electron 2.x - Node.js v8.9.3.
+-   Electron 3.x - Node.js v10.2.0.
+-   Electron 4.0.4+ - Node.js v10.11.0.
+-   Electron 5.x - Node.js v12.0.0.
+-   Electron 6.x - Node.js v12.4.0.
+-   Electron 7.x - Node.js v12.8.1
+-   Electron 8.x - Node.js v12.13.0
+-   Electron 9.x - Node.js v12.14.1
+-   Electron 10.x - Node.js v12.16.3
+-   Electron 11.x - Node.js v12.18.3
+-   Electron 12.x - Node.js v14.16.0
+-   Electron 13.x - Node.js v14.16.0
+
+#### 安装对应版本
+
+那么我们重新安装对应版本的 `Electron`
+
+```
+npm install --save-dev electron@13.0.0
+```
+
+然后运行程序可以看到控制台打印
+
+```
+undefined ".NET Welcomes Electron"
+```
+
+至此我们成功使用 `electron-edge-js` 执行了一段 `C#` 代码
+
+#### 调用 DLL
+
+`html` 中添加按钮
+
+```
+<button id="testDll">testDll</button>
+```
+
+`preload` 监听按钮事件
+```javascript
+const edge = require('electron-edge-js');
+const path = require('path')
+```
+```javascript
+const testDll = document.getElementById('testDll')
+testDll.onclick = function () {
+  const Invoke = edge.func({
+    assemblyFile: path.resolve(__dirname, "./dll/electronedge.dll"),
+    typeName: "electronedge.MQ",
+    methodName: "Invoke"
+  })
+  Invoke('Electron', (error, value) => {
+    console.log(error, value)
+  })
+}
+```
+
+运行程序, 点击 `testDll`, 控制台成功打印信息
+```
+undefined "来自dll : 2021-11-27 21:56:58.392 Electron"
+```
