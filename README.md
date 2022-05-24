@@ -286,3 +286,9 @@ testDll.onclick = function () {
 ```
 undefined "来自dll : 2021-11-27 21:56:58.392 Electron"
 ```
+
+Add
+
+npm install -g node-gyp
+npm install --global windows-build-tools
+
