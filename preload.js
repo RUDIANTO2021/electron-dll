@@ -42,7 +42,6 @@ window.onload = function () {
       {
         FastCodeSDK.FPReader MyReader;
         MyReader = new FastCodeSDK.FPReader();
-        MyReader.GetReaders();
         
         Console.WriteLine("-----> In .NET:");
         foreach (var kv in (IDictionary<string,object>)data)
