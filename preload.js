@@ -30,46 +30,46 @@ window.onload = function () {
 
   const testDll = document.getElementById('testDll')
   testDll.onclick = function () {
-    /*const Invoke = edge.func({
-      assemblyFile: path.resolve(__dirname, "./dll/electronedge.dll"),
-      typeName: "electronedge.MQ",
-      methodName: "Invoke"
-    })*/
-    
-    const Invoke = edge.func({
-      assemblyFile: path.resolve(__dirname, "./dll/FastCodeSDK.dll"),
-      typeName: "FastCodeSDK.FPReader",
-      methodName: "SelectReader"
-    })
+    var hello = edge.func(function () {/*
+      using System;
+      using System.Collections.Generic;
+      using System.Drawing;
+      using FastCodeSDK;
+      
+      #r "/dll/FastCodeSDK.dll"
+      
+      async (data) =>
+      {
+        FastCodeSDK.FPReader MyReader;
+        MyReader = new FastCodeSDK.FPReader();
+        MyReader.GetReaders();
+        
+        Console.WriteLine("-----> In .NET:");
+        foreach (var kv in (IDictionary<string,object>)data)
+        {
+          Console.WriteLine(kv.Key + " Tes: " + kv.Value.GetType());
+        }
+        return null;
+      }
+    */});
 
-    console.log(Invoke);
-    
-    var PARAM = ["5968-3873-0EF2-C868", "D400B01062", "CDC2-A08C-B136-8382-D412-0AD5-9603-B40E", 0];
-    /*
-    Invoke(PARAM, (error, value) => {
+    var payload = {
+      anInteger: 1,
+      aNumber: 3.1415,
+      aString: 'foobar',
+      aBool: true,
+      anObject: {},
+      anArray: [ 'a', 1, true ],
+      aBuffer: new Buffer(1024)
+    }
+
+    console.log('-----> In node.js:');
+    console.log(payload);
+
+    hello(payload, function (error, result) {
       if (error) throw error;
-      console.log(error, value)
-    })
-    */
-    Invoke(PARAM, function (error, result) {
-      if (error) throw error;
-      console.log(result)
-    })
+    });
     
-    //var receiveHandler = Invoke(sendImpl, true); 
-
-    /*var PARAM = ["5968-3873-0EF2-C868", "D400B01062", "CDC2-A08C-B136-8382-D412-0AD5-9603-B40E", 0];
-    //var PARAM = ["SelectReader", "5968-3873-0EF2-C868", "D400B01062", "CDC2-A08C-B136-8382-D412-0AD5-9603-B40E", 0];
-    //SelectReader("5968-3873-0EF2-C868", "D400B01062", "CDC2-A08C-B136-8382-D412-0AD5-9603-B40E", 0)
-
-    Invoke(Invoke.SelectReader("5968-3873-0EF2-C868", "D400B01062", "CDC2-A08C-B136-8382-D412-0AD5-9603-B40E", 0), (error, value) => {
-      if (error) throw error;
-      console.log(error, value)
-    })
-    */
-
-    //var receiveHandler = MyReader("GetReaders"); 
-    //console.log(receiveHandler);
   }
 }
 
