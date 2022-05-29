@@ -292,3 +292,12 @@ Add
 npm install -g node-gyp
 npm install --global windows-build-tools
 
+        MyReader.FPReaderList += new FastCodeSDK.FPReader.FPReaderListEventHandler(MyReader_FPReaderList);
+        
+        void MyReader_FPReaderList(string VC)
+        {
+          Console.WriteLine("VC : " + VC);
+        }
+
+
+        //MyReader.FPEnrollmentSingleSampleStart(TemplateSafetyKey);
