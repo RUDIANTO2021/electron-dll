@@ -299,5 +299,17 @@ npm install --global windows-build-tools
           Console.WriteLine("VC : " + VC);
         }
 
-
+        void MyReader_FPEnrollmentStatus(FPReader.EnrollmentStatus Status)
+        {
+            Console.WriteLine("Enrollment Status : " + Convert.ToString(Status));
+            if (Status == FPReader.EnrollmentStatus.Sucess || Status == FPReader.EnrollmentStatus.Fail)
+            {
+              Console.WriteLine("Enrollment Success");
+            }
+            if (Status == FPReader.EnrollmentStatus.Sucess &&  String.IsNullOrEmpty(Temp)) {
+              Console.WriteLine("Enrollment Failed");
+            }
+        }
+        MyReader.FPEnrollmentStatus += new FPReader.FPEnrollmentStatusEventHandler(MyReader_FPEnrollmentStatus);
+        
         //MyReader.FPEnrollmentSingleSampleStart(TemplateSafetyKey);
